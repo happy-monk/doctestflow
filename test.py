@@ -56,7 +56,7 @@ and it will write the value.
 
                 >>> 2+2
                 >>> 50 - 5*6
-                >>> (50 - 5*6) / 4
+                >>> (50 - 5*6) // 4
 
             With Python, it is possible to use the ``**`` operator to calculate powers [#]_::
 
@@ -70,8 +70,8 @@ and it will write the value.
                 4
                 >>> 50 - 5*6
                 20
-                >>> (50 - 5*6) / 4
-                5.0
+                >>> (50 - 5*6) // 4
+                5
 
             With Python, it is possible to use the ``**`` operator to calculate powers [#]_::
 
@@ -91,7 +91,7 @@ and it will write the value.
             >>> 2**6; 3**4
             64
 
-            >>> 10/2
+            >>> 10//2
         ''','''
             >>> 1+1
             2
@@ -104,8 +104,8 @@ and it will write the value.
             64
             81
 
-            >>> 10/2
-            5.0
+            >>> 10//2
+            5
         ''')
 
     def test_indents(self):
@@ -152,13 +152,13 @@ and it will write the value.
 
     def test_exceptions(self):
         self.check('''
-            >>> 1/0
+            >>> int('x')
 
             >>> [][0]
         ''','''
-            >>> 1/0
+            >>> int('x')
             Traceback (most recent call last):
-            ZeroDivisionError: division by zero
+            ValueError: invalid literal for int() with base 10: 'x'
 
             >>> [][0]
             Traceback (most recent call last):

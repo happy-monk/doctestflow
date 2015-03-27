@@ -1,5 +1,4 @@
 import doctest
-from textwrap import indent
 
 
 class DocTestRunner(doctest.DocTestRunner):
@@ -43,3 +42,15 @@ def generate_doctest(test):
             out(str(example))
 
     return ''.join(output)
+
+
+# Pulled in from Python 3.4 `textwrap` module
+def indent(text, prefix, predicate=None):
+    if predicate is None:
+        def predicate(line):
+            return line.strip()
+
+    def prefixed_lines():
+        for line in text.splitlines(True):
+            yield (prefix + line if predicate(line) else line)
+    return ''.join(prefixed_lines())
