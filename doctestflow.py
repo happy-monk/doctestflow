@@ -36,7 +36,7 @@ def generate_doctest(test):
         if isinstance(example, doctest.Example):
             prefix = ' ' * example.indent
             outp = lambda s: out(indent(s, prefix))
-            outp('>>> ' + example.source)
+            outp('>>> ' + '... '.join(example.source.splitlines(True)))
             outp(getattr(example, 'got', example.want))
         else:
             out(str(example))
