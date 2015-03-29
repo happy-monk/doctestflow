@@ -28,6 +28,15 @@ class DocTestParser(doctest.DocTestParser):
         return examples
 
 
+def get_output(example):
+    o = getattr(example, 'got', example.want)
+    o = [
+        (s if s.strip() else '<BLANKLINE>\n')
+        for s in o.splitlines(True)
+    ]
+    return ''.join(o)
+
+
 def generate_doctest(test):
     output = []
     out = output.append
@@ -37,7 +46,7 @@ def generate_doctest(test):
             prefix = ' ' * example.indent
             outp = lambda s: out(indent(s, prefix))
             outp('>>> ' + '... '.join(example.source.splitlines(True)))
-            outp(getattr(example, 'got', example.want))
+            outp(get_output(example))
         else:
             out(str(example))
 

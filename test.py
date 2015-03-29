@@ -176,17 +176,16 @@ and it will write the value.
             ZeroDivisionError: division by zero
         ''')
 
-    @skip("not implemented")
     def test_blanklines_in_output(self):
         self.check('''
-            >>> 1; print(); 42
-            >>> print(' ');print(' ');print()
+            >>> 1; print(''); 42
+            >>> print(' ');print(' ');print('')
         ''','''
-            >>> 1; print(); 42
+            >>> 1; print(''); 42
             1
             <BLANKLINE>
             42
-            >>> print(' ');print(' ');print()
+            >>> print(' ');print(' ');print('')
             <BLANKLINE>
             <BLANKLINE>
             <BLANKLINE>
