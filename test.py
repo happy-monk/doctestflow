@@ -3,7 +3,10 @@ import sys
 from contextlib import contextmanager
 from textwrap import dedent
 import doctest
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 import doctestflow
 
 
