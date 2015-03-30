@@ -1,12 +1,24 @@
+import io
+import sys
+from contextlib import contextmanager
 from textwrap import dedent
 import doctest
 import unittest
-from unittest import skip
 import doctestflow
 
 
+@contextmanager
+def capture_output():
+    _stdout = sys.stdout
+    sys.stdout = io.StringIO() if sys.version_info[0] == 3 else io.BytesIO()
+    try:
+        yield sys.stdout
+    finally:
+        sys.stdout = _stdout
+
+
 class DoctestFlowTests(unittest.TestCase):
-    def check(self, src, ref_generated):
+    def check(self, src, ref_generated, test_generated_doctest = True):
         src = dedent(src)
         ref_generated = dedent(ref_generated)
 
@@ -19,11 +31,12 @@ class DoctestFlowTests(unittest.TestCase):
         generated = doctestflow.generate_doctest(test)
         self.assertMultiLineEqual(ref_generated, generated)
 
-        parser = doctest.DocTestParser()
-        runner = doctest.DocTestRunner()
-        test = parser.get_doctest(generated, {}, '__main__', '__main__', 1)
-        result = runner.run(test)
-        self.assertEqual(result.failed, 0)
+        if test_generated_doctest:
+            parser = doctest.DocTestParser()
+            runner = doctest.DocTestRunner()
+            test = parser.get_doctest(generated, {}, '__main__', '__main__', 1)
+            result = runner.run(test)
+            self.assertEqual(result.failed, 0)
 
     def test_simple_doctests(self):
         self.check('''
@@ -152,8 +165,12 @@ and it will write the value.
     def test_exceptions(self):
         self.check('''
             >>> int('x')
+            Traceback (most recent call last):
+            xxx
 
             >>> [][0]
+            Traceback (most recent call last):
+            xxx
         ''','''
             >>> int('x')
             Traceback (most recent call last):
@@ -164,16 +181,31 @@ and it will write the value.
             IndexError: list index out of range
         ''')
 
-    @skip("not implemented")
+    def test_unexpected_exceptions(self):
+        test = '''
+            >>> x = 0 #5
+            >>> 1/x
+        '''
+
+        # unexpected exceptions should not be showed in generated doctest
+        with capture_output() as output:
+            self.check(test, test, test_generated_doctest = False)
+
+        self.assertIn(dedent('''
+            Failed example:
+                1/x
+            Exception raised:
+        '''), output.getvalue())
+
     def test_mismatching_exceptions(self):
         self.check('''
-            >>> 1/0
+            >>> [][0]
             Traceback (most recent call last):
-            IndexError: xxx
+            ZeroDivisionError: xxx
         ''','''
-            >>> 1/0
+            >>> [][0]
             Traceback (most recent call last):
-            ZeroDivisionError: division by zero
+            IndexError: list index out of range
         ''')
 
     def test_blanklines_in_output(self):

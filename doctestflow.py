@@ -1,17 +1,10 @@
 import doctest
+import string
 
 
 class DocTestRunner(doctest.DocTestRunner):
     def report_failure(self, out, test, example, got):
         example.got = got
-
-    def report_unexpected_exception(self, out, test, example, exc_info):
-        exc_type, exc, _ = exc_info
-        got = 'Traceback (most recent call last):\n' + exc_type.__name__
-        msg = str(exc)
-        if msg:
-            got += ': ' + msg
-        example.got = got + '\n'
 
 class List(list):
     pass
@@ -34,6 +27,22 @@ def get_output(example):
         (s if s.strip() else '<BLANKLINE>\n')
         for s in o.splitlines(True)
     ]
+
+    def strip_tracebacks(o):
+        o = iter(o)
+        while 1:
+            x = next(o)
+            yield x
+
+            if x.strip() == 'Traceback (most recent call last):':
+                while 1:
+                    x = next(o)
+                    if x[:1] not in string.whitespace:
+                        yield x
+                        break
+
+    o = list(strip_tracebacks(o))
+
     return ''.join(o)
 
 
